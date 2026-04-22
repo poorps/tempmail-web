@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -11,6 +12,44 @@ const BASE = 'https://api.mail.tm';
 
 app.use(cors());
 app.use(express.json());
+
+// Transporter do Nodemailer usando o Gmail do usuário
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'lucassps.civil@gmail.com',
+    pass: 'cuce azxd lrgw bguh'
+  }
+});
+
+// Endpoint para disparar o email de teste
+app.post('/api/test-email', async (req, res) => {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'Destinatário ausente' });
+
+  try {
+    const info = await transporter.sendMail({
+      from: '"TempMail Tester" <lucassps.civil@gmail.com>',
+      to: to,
+      subject: 'Teste de Recebimento TempMail Pro 🚀',
+      text: 'Olá!\n\nSe você está lendo isso, o sistema de email temporário e a comunicação com a API estão funcionando perfeitamente.\n\nContinue o ótimo trabalho!',
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #4f46e5;">Teste de Recebimento TempMail Pro 🚀</h2>
+          <p>Olá!</p>
+          <p>Se você está lendo isso, o sistema de email temporário e a comunicação com a API estão <strong>funcionando perfeitamente</strong>.</p>
+          <p>Continue o ótimo trabalho!</p>
+          <br/>
+          <small style="color: #888;">Mensagem automatizada gerada pelo seu app.</small>
+        </div>
+      `
+    });
+    res.json({ success: true, messageId: info.messageId });
+  } catch (error) {
+    console.error('Erro ao enviar email de teste:', error);
+    res.status(500).json({ error: 'Falha ao enviar o email' });
+  }
+});
 
 // Serve os arquivos estáticos do React (build de produção)
 app.use(express.static(path.join(__dirname, 'dist')));

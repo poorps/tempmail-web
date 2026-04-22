@@ -74,6 +74,22 @@ function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const sendTestEmail = async () => {
+    if (!email) return;
+    try {
+      const res = await fetch(`${API}/test-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email })
+      });
+      if (!res.ok) throw new Error('Falha ao enviar email de teste');
+      alert('Email de teste enviado com sucesso! Aguarde alguns segundos na Caixa de Entrada.');
+    } catch (err) {
+      console.error('Erro ao enviar email de teste:', err);
+      alert('Erro ao enviar email de teste. Verifique o console.');
+    }
+  };
+
   useEffect(() => {
     generateEmail();
   }, []);
@@ -113,10 +129,22 @@ function App() {
             {copied ? <Check size={20} color="green" /> : <Copy size={20} />}
           </button>
         </div>
-        <button className="btn-primary" onClick={generateEmail} disabled={loading}>
-          <RefreshCw size={18} />
-          Gerar Novo Email
-        </button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '1rem' }}>
+          <button className="btn-primary" onClick={generateEmail} disabled={loading}>
+            <RefreshCw size={18} />
+            Novo Email
+          </button>
+          <button 
+            className="btn-primary" 
+            onClick={sendTestEmail} 
+            disabled={!email || loading}
+            style={{ background: 'var(--text-primary)', color: 'white' }}
+            title="Envia um email de teste real para esta caixa"
+          >
+            <Mail size={18} />
+            Enviar Teste
+          </button>
+        </div>
       </div>
 
       <div className="main-content">
