@@ -102,7 +102,7 @@ app.get('/api/message/:id', async (req, res) => {
 });
 
 // Catch-all: qualquer rota não-API retorna o index.html do React
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
